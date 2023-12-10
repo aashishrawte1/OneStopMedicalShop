@@ -99,14 +99,110 @@ app.get('/products', async (req, res) => {
     // console.log("products => ", products);
 
     // Format products as per Shopify requirements
-    const shopifyProducts = products.map((product) => ({
-      title: product.prod_title,
-      body_html: product.meta_description,
-      // vendor: product.specifications.Manufacturer,
-      // details: product.product-features,
+    // start of shopify block //
+    const shopifyProducts = products.map((product) => {
+      const shopifyProduct = {
+        title: product.prod_title,
+        body_html: product.meta_description,
+        // vendor: product.specifications.Manufacturer,
+        // details: product['product-features'].join('\n'),
+      };
+    
+      if (product.schema && product.schema.image) {
+        shopifyProduct.images = [
+          {
+            src: product.schema.image,
+          },
+        ];
+      }
+    
+      // const specificationsMetafields = Object.entries(product.specifications).map(([key, value]) => ({
+      //   key,
+      //   value,
+      //   value_type: 'string',
+      //   namespace: 'specifications',
+      // }));
+    
+      // shopifyProduct.metafields = specificationsMetafields;
+    
+      if (product.tags && product.tags.length > 0) {
+        shopifyProduct.tags = product.tags;
+      }
+    
+      return shopifyProduct;
+    });
+    
+    // Now shopifyProducts is an array of Shopify product objects.
+    
 
-      // Add more fields as needed
-    }));
+    // end of shopify block //
+
+
+    // const shopifyProducts = products.map((product) => {
+    //   const shopifyProduct = {
+    //     _id: product._id, // assuming _id is available in the original data
+    //     product: {
+    //       productId: product.product.productId,
+    //       details: {
+    //         longDescription: product.product.details.longDescription,
+    //         displayName: product.product.details.displayName,
+    //         url: product.product.details.url,
+    //         manufacturer: product.product.details.manufacturer,
+    //       },
+    //     },
+    //     material: product.material,
+    //     details: {
+    //       isLatexFree: product.details.isLatexFree,
+    //       mfrProdNum: product.details.mfrProdNum,
+    //       salesUOM: product.details.salesUOM,
+    //       displayName: product.details.displayName,
+    //       packagingStringLong: product.details.packagingStringLong,
+    //       url: product.details.url,
+    //       baseUOM: product.details.baseUOM,
+    //       deliveryUOM: product.details.deliveryUOM,
+    //       manufacturer: product.details.manufacturer,
+    //       packagingStringShort: product.details.packagingStringShort,
+    //     },
+    //     media: [
+    //       {
+    //         type: "imagePrimary",
+    //         url: product.media[0].url, // assuming at least one image is available
+    //       },
+    //     ],
+    //     specifications: [
+    //       {
+    //         name: "Latex Free",
+    //         value: [product.details.isLatexFree ? "Yes" : "No"],
+    //       },
+    //       {
+    //         name: "UNSPSC",
+    //         value: [product.specifications[1].value[0]], // assuming UNSPSC is available
+    //       },
+    //     ],
+    //     packagingDetails: product.packagingDetails.map((packagingDetail) => ({
+    //       baseUomDesc: packagingDetail.baseUomDesc,
+    //       uomDesc: packagingDetail.uomDesc,
+    //       length: packagingDetail.length,
+    //       casePack: packagingDetail.casePack,
+    //       volume: packagingDetail.volume,
+    //       grossWeight: packagingDetail.grossWeight,
+    //       netWeight: packagingDetail.netWeight,
+    //       uom: packagingDetail.uom,
+    //       salesUom: packagingDetail.salesUom,
+    //       width: packagingDetail.width,
+    //       gtinAndUpc: packagingDetail.gtinAndUpc,
+    //       weightUom: packagingDetail.weightUom,
+    //       volumeUom: packagingDetail.volumeUom,
+    //       conversion: packagingDetail.conversion,
+    //       height: packagingDetail.height,
+    //     })),
+    //   };
+    
+    //   return shopifyProduct;
+    // });
+    
+    // shopifyProducts;
+    
 
     // Create or update products on Shopify
     const updatedProducts = await shopify.product.list();
